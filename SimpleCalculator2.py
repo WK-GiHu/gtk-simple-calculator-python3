@@ -77,21 +77,23 @@ class Handlers:
             return v1 -v2
         
         # 5x5 + 2 / 3÷2+ 10 % - 1
-        # [('', '5', ''), ('*', '5', ''), ('+', '2', ''), ('/', '3', ''),
-        # ('÷', '2', ''), ('+', '10', ' %'), ('-', '1', '')]
-        e = re.findall('([+-x*/÷])?\s?(\d+)(\s%|%)?', expr)
+        # [('5', '', '', ''), ('*5', '*', '5', ''), ('+ 2', '+', '2', ''), ('/ 3', '/', '3', ''), 
+        # ('÷2', '÷', '2', ''), ('+ 10 %', '+', '10', ' %'), ('- 1', '-', '1', '')]
+        e = re.findall('(\d+|([+-x*/÷]?)\s?(\d+)(\s%|%)?)', expr)        
+        # print('\te:{}'.format(e))
+        
         r = None
         for v in e:
-            op = {'*': mul, 'x': mul, '+': add, '/': div, '÷': div, '-': sub}.get(v[0], None)
-            if op is not None and not v[2]:
-                r = op(r, float(v[1]))
+            op = {'*': mul, 'x': mul, '+': add, '/': div, '÷': div, '-': sub}.get(v[1], None)
+            if op is not None and not v[3]:
+                r = op(r, float(v[2]))
                 
-            elif op is not None and '%' in v[2]:
+            elif op is not None and '%' in v[3]:
                 # print('v%:{}'.format(v))
-                r = mul(r, (float(v[1]) / 100))
+                r = mul(r, (float(v[2]) / 100))
                 
             else:
-                r = float(v[1])
+                r = float(v[0])
                 
             # print('\tr:{}'.format(r))
         return r
